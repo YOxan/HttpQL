@@ -24,7 +24,6 @@ class ApiV1[F[_]] @Inject()(
 
   val endpointsList: List[ServerEndpoint[_, _, _, Nothing, F]] =
     List(
-      new TestRoute[F].route,
       graphQLRoute.route,
       graphQLBrowserRoute.route,
       getSDLRoute.route

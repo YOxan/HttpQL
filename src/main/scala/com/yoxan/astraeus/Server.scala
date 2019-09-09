@@ -3,8 +3,6 @@ package com.yoxan.astraeus
 import cats.Functor
 import cats.effect.{ ConcurrentEffect, Timer }
 import cats.implicits._
-import com.contact4u.config.ServerConfig
-import com.contact4u.route.ApiV1
 import com.yoxan.astraeus.config.ServerConfig
 import com.yoxan.astraeus.route.ApiV1
 import org.http4s.server.blaze.BlazeServerBuilder
