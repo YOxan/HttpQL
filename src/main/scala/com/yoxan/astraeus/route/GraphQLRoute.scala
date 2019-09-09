@@ -1,7 +1,7 @@
 package com.yoxan.astraeus.route
 
 import cats.data.EitherT
-import cats.effect.{ Async, ContextShift, Effect }
+import cats.effect.Async
 import com.yoxan.astraeus.error.{ errorBody, ServerError }
 import com.yoxan.astraeus.graphql.GraphQLResolver
 import io.circe.generic.auto._
@@ -10,15 +10,12 @@ import tapir._
 import tapir.json.circe._
 import tapir.server.ServerEndpoint
 
-class GraphQLRoute[F[_]](
+class GraphQLRoute[F[_]: Async](
     val graphQLResolver: GraphQLResolver[F, Any],
     val authorization: Authorization[F]
-)(
-    implicit val cs: ContextShift[F],
-    A: Async[F]
 ) extends BaseRoute[F] {
 
-  def route(implicit E: Effect[F]): ServerEndpoint[_, _, _, Nothing, F] =
+  def route: ServerEndpoint[_, _, _, Nothing, F] =
     endpoint
       .name("GraphQL route")
       .description("Graphql route")

@@ -2,18 +2,17 @@ name := "contact-backend"
 
 scalaVersion := "2.12.8"
 
-val http4sVersion  = "0.20.6"
-val logbackVersion = "1.2.3"
-val circeVersion   = "0.11.1"
-val tapirVersion   = "0.9.0"
-val catsCoreVersion = "1.6.1"
-val catsEffectVersion = "1.3.1"
-val scalaGuiceVersion = "4.2.6"
-val sangriaVersion = "1.4.2"
-val sangriaCirceVersion = "1.2.1"
+val http4sVersion         = "0.20.6"
+val logbackVersion        = "1.2.3"
+val circeVersion          = "0.11.1"
+val tapirVersion          = "0.9.0"
+val catsCoreVersion       = "1.6.1"
+val catsEffectVersion     = "1.3.1"
+val sangriaVersion        = "1.4.2"
+val sangriaCirceVersion   = "1.2.1"
 val typesafeConfigVersion = "1.3.4"
-val peruconfigVersion = "0.11.1"
-val jwtCirceVersion = "3.1.0"
+val peruconfigVersion     = "0.11.1"
+val jwtCirceVersion       = "3.1.0"
 
 // Only necessary for SNAPSHOT releases
 resolvers += Resolver.sonatypeRepo("snapshots")
@@ -24,15 +23,15 @@ addCompilerPlugin("org.typelevel" %% "kind-projector" % "0.10.3")
 enablePlugins(AshScriptPlugin, DockerPlugin, GitVersioning, GitBranchPrompt)
 
 scalacOptions ++= Seq(
-"-encoding",
-"utf8",
-"-Xfatal-warnings",
-"-deprecation",
-"-unchecked",
-"-language:implicitConversions",
-"-language:higherKinds",
-"-language:existentials",
-"-language:postfixOps"
+  "-encoding",
+  "utf8",
+  "-Xfatal-warnings",
+  "-deprecation",
+  "-unchecked",
+  "-language:implicitConversions",
+  "-language:higherKinds",
+  "-language:existentials",
+  "-language:postfixOps"
 )
 
 libraryDependencies ++= Seq(
@@ -43,7 +42,6 @@ libraryDependencies ++= Seq(
   "org.typelevel"          %% "cats-effect"              % catsEffectVersion,
   "ch.qos.logback"         % "logback-classic"           % logbackVersion,
   "ch.qos.logback"         % "logback-core"              % logbackVersion,
-  "net.codingwell"         %% "scala-guice"              % scalaGuiceVersion,
   "com.softwaremill.tapir" %% "tapir-core"               % tapirVersion,
   "com.softwaremill.tapir" %% "tapir-json-circe"         % tapirVersion,
   "com.softwaremill.tapir" %% "tapir-http4s-server"      % tapirVersion,
@@ -68,7 +66,7 @@ javaOptions in Universal ++= Seq(
 
 val VersionRegex = "v([0-9]+.[0-9]+.[0-9]+)-?(.*)?".r
 git.useGitDescribe := true
-git.baseVersion    := "0.0.1"
+git.baseVersion := "0.0.1"
 git.gitTagToVersionNumber := {
   case VersionRegex(v, "")         => Some(v)
   case VersionRegex(v, "SNAPSHOT") => Some(s"$v-SNAPSHOT")

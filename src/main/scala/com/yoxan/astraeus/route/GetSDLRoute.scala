@@ -1,23 +1,18 @@
 package com.yoxan.astraeus.route
 
-import cats.effect.{ Async, ContextShift, Effect }
+import cats.effect.Async
 import cats.implicits._
-import com.yoxan.astraeus.error.errorBody
-import com.yoxan.astraeus.error.ErrorDTO
+import com.yoxan.astraeus.error.{ errorBody, ErrorDTO }
 import com.yoxan.astraeus.graphql.SchemaDefinition
-import javax.inject.Inject
 import tapir.server.ServerEndpoint
 import tapir.{ auth, endpoint, stringBody }
 
-class GetSDLRoute[F[_]]()(
+class GetSDLRoute[F[_]: Async]()(
     val authorization: Authorization[F],
     val schemaDefinition: SchemaDefinition[_]
-)(
-    implicit val cs: ContextShift[F],
-    A: Async[F]
 ) extends BaseRoute[F] {
 
-  def route(implicit E: Effect[F]): ServerEndpoint[_, _, _, Nothing, F] =
+  def route: ServerEndpoint[_, _, _, Nothing, F] =
     endpoint
       .name("GraphQL SDL route")
       .description("Graphql SDL route")
