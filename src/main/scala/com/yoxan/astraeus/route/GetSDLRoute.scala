@@ -4,14 +4,14 @@ import cats.effect.{ Async, ContextShift, Effect }
 import cats.implicits._
 import com.yoxan.astraeus.error.errorBody
 import com.yoxan.astraeus.error.ErrorDTO
+import com.yoxan.astraeus.graphql.SchemaDefinition
 import javax.inject.Inject
 import tapir.server.ServerEndpoint
 import tapir.{ auth, endpoint, stringBody }
 
-class GetSDLRoute[F[_]] @Inject()(
-    val graphQLResolver: GraphQLResolver[F],
+class GetSDLRoute[F[_]]()(
     val authorization: Authorization[F],
-    val schemaDefinition: SchemaDefinition[F]
+    val schemaDefinition: SchemaDefinition[_]
 )(
     implicit val cs: ContextShift[F],
     A: Async[F]

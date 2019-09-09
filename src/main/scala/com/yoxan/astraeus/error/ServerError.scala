@@ -8,6 +8,7 @@ case class ServerError(msg: String, errorCode: Option[Int] = None) extends Excep
 
 object TestError extends ServerError("Test error", Some(0))
 object NotAuthorized extends ServerError("User not authorized", Some(101))
+object ProfileNotFound extends ServerError("Profile not found", Some(201))
 
 object ServerError {
 

@@ -1,7 +1,7 @@
-package com.yoxan.astraeus.route
+package com.yoxan.astraeus.user
 
-case class Auth0User(
-    auth0Id: String,
+case class Auth0User[IdType](
+    id: IdType,
     lastName: String,
     firstName: String,
     middleName: Option[String]

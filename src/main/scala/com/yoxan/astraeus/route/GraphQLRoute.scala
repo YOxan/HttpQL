@@ -2,16 +2,16 @@ package com.yoxan.astraeus.route
 
 import cats.data.EitherT
 import cats.effect.{ Async, ContextShift, Effect }
-import com.yoxan.astraeus.error.errorBody
-import com.yoxan.astraeus.error.ServerError
+import com.yoxan.astraeus.error.{ errorBody, ServerError }
+import com.yoxan.astraeus.graphql.GraphQLResolver
 import io.circe.generic.auto._
-import javax.inject.Inject
+import sangria.marshalling.circe
 import tapir._
 import tapir.json.circe._
 import tapir.server.ServerEndpoint
 
-class GraphQLRoute[F[_]] @Inject()(
-    val graphQLResolver: GraphQLResolver[F],
+class GraphQLRoute[F[_]](
+    val graphQLResolver: GraphQLResolver[F, Any],
     val authorization: Authorization[F]
 )(
     implicit val cs: ContextShift[F],
@@ -28,11 +28,11 @@ class GraphQLRoute[F[_]] @Inject()(
       .in(jsonBody[Query])
       //TODO: Check why error doesn't work and is shown only at console
       .errorOut(errorBody)
-      .out(stringBody)
+      .out(jsonBody[circe.CirceResultMarshaller.Node])
       .serverLogic[F] {
         case (jwt, query) =>
           EitherT[F, Throwable, String](authorization.getId(jwt))
-            .flatMapF(graphQLResolver.execute(_, query))
+            .flatMap(graphQLResolver.execute(_, query))
             .leftMap(ex => ServerError.toError(ex).toDTO())
             .value
       }
