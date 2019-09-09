@@ -1,14 +1,19 @@
 package com.yoxan.astraeus
 
-import cats.Functor
-import cats.effect.{ ConcurrentEffect, IO, Timer }
+import cats.effect.{ ConcurrentEffect, ContextShift, Timer }
 import cats.implicits._
 import com.yoxan.astraeus.config.{ ConfigLoader, ServerConfig }
+import com.yoxan.astraeus.graphql.{ GraphQLContext, SchemaDefinition }
 import com.yoxan.astraeus.route.Api
+import com.yoxan.astraeus.user.UserProvider
 import org.http4s.server.blaze.BlazeServerBuilder
+import sangria.execution.deferred.DeferredResolver
+import tapir.server.ServerEndpoint
 
-class Server[F[_]: ConcurrentEffect: Timer: Functor](val serverConfigF: F[ServerConfig]) {
-  def start(apiV1: Api[F]) =
+import scala.concurrent.ExecutionContext
+
+class Server[F[_]: ConcurrentEffect: Timer: ContextShift](val serverConfigF: F[ServerConfig]) {
+  def start(apiV1: Api[F]): F[Unit] =
     serverConfigF.flatMap(
       cfg =>
         BlazeServerBuilder[F]
@@ -17,10 +22,22 @@ class Server[F[_]: ConcurrentEffect: Timer: Functor](val serverConfigF: F[Server
           .resource
           .use(_ => ConcurrentEffect[F].never[Unit])
     )
+
+  def start(
+      schemaDefinition: SchemaDefinition[GraphQLContext[F, String]],
+      resolver: DeferredResolver[GraphQLContext[F, String]],
+      userProvider: UserProvider[F, String],
+      additionalRoutes: List[ServerEndpoint[_, _, _, Nothing, F]] = List.empty
+  )(
+      implicit ec: ExecutionContext
+  ): F[Unit] = {
+    val api = Api.apply[F](schemaDefinition, resolver, userProvider, additionalRoutes)
+    start(api)
+  }
 }
 
 object Server {
-  def apply[F[_]](implicit ce: ConcurrentEffect[F], timer: Timer[F]) = {
+  def apply[F[_]: ContextShift](implicit ce: ConcurrentEffect[F], timer: Timer[F]) = {
     val httpCfg = ConfigLoader.loadServerConfig[F]
 
     new Server[F](httpCfg)

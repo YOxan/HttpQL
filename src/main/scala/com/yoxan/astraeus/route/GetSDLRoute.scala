@@ -4,10 +4,11 @@ import cats.effect.Async
 import cats.implicits._
 import com.yoxan.astraeus.error.{ errorBody, ErrorDTO }
 import com.yoxan.astraeus.graphql.SchemaDefinition
+import com.yoxan.astraeus.user.Authorization
 import tapir.server.ServerEndpoint
 import tapir.{ auth, endpoint, stringBody }
 
-class GetSDLRoute[F[_]: Async]()(
+class GetSDLRoute[F[_]: Async](
     val authorization: Authorization[F],
     val schemaDefinition: SchemaDefinition[_]
 ) extends BaseRoute[F] {

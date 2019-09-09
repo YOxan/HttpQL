@@ -1,16 +1,15 @@
-package com.yoxan.astraeus.route
+package com.yoxan.astraeus.user
 
 import java.time.Clock
 
+import cats._
 import cats.data.EitherT
 import cats.effect.Effect
 import cats.implicits._
-import cats._
 import com.yoxan.astraeus.error.NotAuthorized
-import javax.inject.Inject
 import pdi.jwt.{ JwtAlgorithm, JwtCirce, JwtClaim }
 
-class Authorization[F[_]: Applicative] @Inject()(implicit val E: Effect[F]) {
+class Authorization[F[_]: Applicative: Effect] {
 
   implicit val clock = Clock.systemDefaultZone()
 
@@ -21,7 +20,7 @@ class Authorization[F[_]: Applicative] @Inject()(implicit val E: Effect[F]) {
   val audience = "https://contact4u.ru"
 
   def decodeJwt(token: String): F[JwtClaim] =
-    E.fromTry(
+    Effect[F].fromTry(
       JwtCirce.decode(token, key, Seq(alg)).ensure(NotAuthorized)(_.isValid(issuer, audience))
     )
 
