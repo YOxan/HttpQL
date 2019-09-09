@@ -3,7 +3,7 @@ package com.yoxan.astraeus.route
 import cats.arrow.FunctionK
 import cats.effect.Async
 import cats.implicits._
-import com.contact4u.error.ServerError
+import com.yoxan.astraeus.error.ServerError
 import com.yoxan.astraeus.error.{ ErrorDTO, ServerError }
 
 class BaseRoute[F[_]: Async] {

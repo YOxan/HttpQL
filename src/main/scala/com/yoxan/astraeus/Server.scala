@@ -1,9 +1,9 @@
 package com.yoxan.astraeus
 
 import cats.Functor
-import cats.effect.{ ConcurrentEffect, Timer }
+import cats.effect.{ ConcurrentEffect, IO, Timer }
 import cats.implicits._
-import com.yoxan.astraeus.config.ServerConfig
+import com.yoxan.astraeus.config.{ ConfigLoader, ServerConfig }
 import com.yoxan.astraeus.route.ApiV1
 import org.http4s.server.blaze.BlazeServerBuilder
 
@@ -17,4 +17,12 @@ class Server[F[_]: ConcurrentEffect: Timer: Functor](val serverConfigF: F[Server
           .resource
           .use(_ => ConcurrentEffect[F].never[Unit])
     )
+}
+
+object Server {
+  def apply[F[_]](implicit ce: ConcurrentEffect[F], timer: Timer[F]) = {
+    val httpCfg = ConfigLoader.loadServerConfig[F]
+
+    new Server[F](httpCfg)
+  }
 }

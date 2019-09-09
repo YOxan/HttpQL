@@ -1,8 +1,7 @@
 package com.yoxan.astraeus.route
 
 import cats.effect.{ Async, ContextShift }
-import com.contact4u.domain.graphql.GraphQLResolver
-import com.contact4u.error.errorBody
+import com.yoxan.astraeus.error.errorBody
 import com.yoxan.astraeus.error.ServerError
 import javax.inject.Inject
 import org.http4s.StaticFile

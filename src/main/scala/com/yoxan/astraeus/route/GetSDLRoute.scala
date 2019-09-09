@@ -2,8 +2,7 @@ package com.yoxan.astraeus.route
 
 import cats.effect.{ Async, ContextShift, Effect }
 import cats.implicits._
-import com.contact4u.domain.graphql.{ GraphQLResolver, SchemaDefinition }
-import com.contact4u.error.errorBody
+import com.yoxan.astraeus.error.errorBody
 import com.yoxan.astraeus.error.ErrorDTO
 import javax.inject.Inject
 import tapir.server.ServerEndpoint
