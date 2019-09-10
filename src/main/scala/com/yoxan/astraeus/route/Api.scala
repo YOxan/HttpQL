@@ -2,6 +2,7 @@ package com.yoxan.astraeus.route
 
 import cats.data.{ Kleisli, OptionT }
 import cats.effect.{ ContextShift, Effect, Sync }
+import com.yoxan.astraeus.config.AuthenticationConfig
 import com.yoxan.astraeus.graphql.{ GraphQLContext, GraphQLResolver, SchemaDefinition }
 import com.yoxan.astraeus.user.{ Authorization, UserProvider }
 import org.http4s.implicits._
@@ -53,12 +54,13 @@ object Api {
       schemaDefinition: SchemaDefinition[GraphQLContext[F, String]],
       resolver: DeferredResolver[GraphQLContext[F, String]],
       userProvider: UserProvider[F, String],
+      authenticationConfig: AuthenticationConfig,
       additionalRoutes: List[ServerEndpoint[_, _, _, Nothing, F]] = List.empty
   )(
       implicit ec: ExecutionContext
   ) = {
     val graphQLResolver = new GraphQLResolver[F, GraphQLContext[F, String]](resolver, schemaDefinition)
-    val authorization   = new Authorization[F]()
+    val authorization   = new Authorization[F](authenticationConfig)
 
     val graphQLRoute        = new GraphQLRoute[F](graphQLResolver, authorization, userProvider)
     val graphQLBrowserRoute = new GraphQLBrowserRoute[F](graphQLResolver)

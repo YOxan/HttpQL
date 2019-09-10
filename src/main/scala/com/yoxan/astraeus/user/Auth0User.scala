@@ -1,6 +1,6 @@
 package com.yoxan.astraeus.user
 
-case class Auth0User[IdType](
+case class e[IdType](
     id: IdType,
     lastName: String,
     firstName: String,

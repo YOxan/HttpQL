@@ -2,11 +2,11 @@ package com.yoxan.astraeus.config
 
 import pureconfig.generic.semiauto._
 
-case class Auth0Config(
+case class AuthenticationConfig(
     key: String,
     issuer: String,
     audience: String
 )
-object Auth0Config {
-  implicit val configReader = deriveReader[Auth0Config]
+object AuthenticationConfig {
+  implicit val configReader = deriveReader[AuthenticationConfig]
 }

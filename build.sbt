@@ -20,7 +20,7 @@ resolvers += Resolver.sonatypeRepo("releases")
 resolvers += Resolver.bintrayRepo("janstenpickle", "maven")
 
 addCompilerPlugin("org.typelevel" %% "kind-projector" % "0.10.3")
-enablePlugins(AshScriptPlugin, DockerPlugin, GitVersioning, GitBranchPrompt)
+enablePlugins(GitVersioning, GitBranchPrompt)
 
 scalacOptions ++= Seq(
   "-encoding",
@@ -56,12 +56,6 @@ libraryDependencies ++= Seq(
   "com.typesafe"           % "config"                    % typesafeConfigVersion,
   "com.github.pureconfig"  %% "pureconfig"               % peruconfigVersion,
   "com.pauldijou"          %% "jwt-circe"                % jwtCirceVersion excludeAll "io.circe"
-)
-
-javaOptions in Universal ++= Seq(
-  // -J params will be added as jvm parameters
-  "-J-Xmx512m",
-  "-J-Xms256m"
 )
 
 val VersionRegex = "v([0-9]+.[0-9]+.[0-9]+)-?(.*)?".r

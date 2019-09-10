@@ -14,8 +14,8 @@ object ConfigLoader {
       pureconfig.loadConfigOrThrow[ServerConfig](config, "server")
     })
 
-  def loadAuth0Config[F[_]: Sync]: F[Auth0Config] =
+  def loadAuthenticationConfig[F[_]: Sync]: F[AuthenticationConfig] =
     Sync[F].fromTry(Try {
-      pureconfig.loadConfigOrThrow[ServerConfig](config, "auth0")
+      pureconfig.loadConfigOrThrow[AuthenticationConfig](config, "oauth")
     })
 }
