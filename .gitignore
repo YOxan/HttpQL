@@ -89,10 +89,11 @@ project/plugins/project/
 *.class
 *.log
 
-Будет удалено src/test/
+src/test/
 ### macOS template
 # General
 .DS_Store
+/**/.DS_Store
 .AppleDouble
 .LSOverride
 
