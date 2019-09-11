@@ -1,4 +1,4 @@
-name := "contact-backend"
+name := "graphql-backend"
 
 scalaVersion := "2.12.8"
 
@@ -61,9 +61,13 @@ libraryDependencies ++= Seq(
 val VersionRegex = "v([0-9]+.[0-9]+.[0-9]+)-?(.*)?".r
 git.useGitDescribe := true
 git.baseVersion := "0.0.1"
+//TODO: Fix version if there is no tag
 git.gitTagToVersionNumber := {
   case VersionRegex(v, "")         => Some(v)
   case VersionRegex(v, "SNAPSHOT") => Some(s"$v-SNAPSHOT")
-  case VersionRegex(v, s)          => Some(s"$v-$s-SNAPSHOT")
-  case _                           => None
+  case VersionRegex(v, s)          => Some(s"$v-CH-SNAPSHOT")
+  case _                           => Some("None")
+}
+git.formattedShaVersion := git.gitHeadCommit.value map { sha =>
+  "0.0.1-CH-SNAPSHOT"
 }

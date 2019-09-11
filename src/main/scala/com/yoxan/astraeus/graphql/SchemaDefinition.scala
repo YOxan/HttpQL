@@ -5,5 +5,5 @@ import sangria.schema._
 
 trait SchemaDefinition[Ctx] {
   val schema: Schema[Ctx, Any]
-  val render = SchemaRenderer.renderSchema(schema)
+  lazy val render = SchemaRenderer.renderSchema(schema)
 }

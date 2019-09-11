@@ -6,7 +6,6 @@ import cats.effect._
 import com.yoxan.astraeus.error.ServerError
 import com.yoxan.astraeus.route.Query
 import com.yoxan.astraeus.util._
-import io.circe.Json
 import sangria.execution.deferred.DeferredResolver
 import sangria.execution.{ ExceptionHandler, Executor, HandledException }
 import sangria.marshalling.circe
@@ -44,7 +43,7 @@ class GraphQLResolver[F[_]: Effect: Monad, Ctx](
   private[graphql] def executeFuture(
       graphQLContext: Ctx,
       queryAst: sangria.ast.Document,
-      variables: Json
+      variables: String
   ): Future[circe.CirceResultMarshaller.Node] =
     Executor
       .execute(
@@ -52,14 +51,14 @@ class GraphQLResolver[F[_]: Effect: Monad, Ctx](
         queryAst,
         graphQLContext,
         deferredResolver = resolver,
-        exceptionHandler = customExceptionHandler,
-        variables = variables
+        exceptionHandler = customExceptionHandler
+        //variables = variables
       )
 
   private[graphql] def execute(
       graphQLContext: Ctx,
       queryAst: sangria.ast.Document,
-      variables: Json
+      variables: String
   ): F[circe.CirceResultMarshaller.Node] =
     executeFuture(graphQLContext, queryAst, variables)
       .toAsync[F]
