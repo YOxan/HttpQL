@@ -14,3 +14,7 @@ class GraphQLContext[F[_]: Sync, IdType](
     .flatMapF(userProvider.getUserById)
     .getOrElseF(Sync[F].raiseError[Identifiable[IdType]](ProfileNotFound))
 }
+
+object GraphQLContext {
+  type Builder[T <: GraphQLContext[F, IdType], F[_], IdType] = (Option[IdType], UserProvider[F, IdType]) => T
+}

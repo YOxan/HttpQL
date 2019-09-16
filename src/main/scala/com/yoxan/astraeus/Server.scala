@@ -12,11 +12,11 @@ import tapir.server.ServerEndpoint
 
 import scala.concurrent.ExecutionContext
 
-class Server[F[_]: ConcurrentEffect: Timer: ContextShift](
+class Server[F[_]: ConcurrentEffect: Timer: ContextShift, T <: GraphQLContext[F, String]](
     val serverConfigF: F[ServerConfig],
     val authConfigF: F[AuthenticationConfig]
 ) {
-  def start(apiV1: Api[F]): F[Unit] =
+  def start(apiV1: Api[F, T]): F[Unit] =
     serverConfigF.flatMap(
       cfg =>
         BlazeServerBuilder[F]
@@ -27,25 +27,26 @@ class Server[F[_]: ConcurrentEffect: Timer: ContextShift](
     )
 
   def start(
-      schemaDefinition: SchemaDefinition[GraphQLContext[F, String]],
+      schemaDefinition: SchemaDefinition[T],
       resolver: DeferredResolver[GraphQLContext[F, String]],
       userProvider: UserProvider[F, String],
+      contextBuilder: GraphQLContext.Builder[T, F, String],
       additionalRoutes: List[ServerEndpoint[_, _, _, Nothing, F]] = List.empty
   )(
       implicit ec: ExecutionContext
   ): F[Unit] =
     authConfigF
       .map(
-        Api.apply[F](schemaDefinition, resolver, userProvider, _, additionalRoutes)
+        Api.apply[F, T](schemaDefinition, resolver, userProvider, _, contextBuilder, additionalRoutes)
       )
       .flatMap(start)
 }
 
 object Server {
-  def apply[F[_]: ContextShift](implicit ce: ConcurrentEffect[F], timer: Timer[F]) = {
+  def apply[F[_]: ContextShift, T <: GraphQLContext[F, String]](implicit ce: ConcurrentEffect[F], timer: Timer[F]) = {
     val httpCfg = ConfigLoader.loadServerConfig[F]
     val authCfg = ConfigLoader.loadAuthenticationConfig[F]
 
-    new Server[F](httpCfg, authCfg)
+    new Server[F, T](httpCfg, authCfg)
   }
 }

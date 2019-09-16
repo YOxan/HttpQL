@@ -13,8 +13,9 @@ import tapir._
 import tapir.json.circe._
 import tapir.server.ServerEndpoint
 
-class GraphQLRoute[F[_]: Async: Monad](
-    val graphQLResolver: GraphQLResolver[F, GraphQLContext[F, String]],
+class GraphQLRoute[F[_]: Async: Monad, T <: GraphQLContext[F, String]](
+    val graphQLResolver: GraphQLResolver[F, T],
+    val contextBuilder: GraphQLContext.Builder[T, F, String],
     val authorization: Authorization[F],
     val userProvider: UserProvider[F, String]
 ) extends BaseRoute[F] {
@@ -33,7 +34,7 @@ class GraphQLRoute[F[_]: Async: Monad](
       .serverLogic[F] {
         case (jwt, query) =>
           EitherT[F, Throwable, String](authorization.getId(jwt))
-            .map(userId => new GraphQLContext[F, String](userId.some, userProvider))
+            .map(userId => contextBuilder(userId.some, userProvider))
             .flatMap(graphQLResolver.execute(_, query))
             .leftMap(ex => ServerError.toError(ex).toDTO())
             .value

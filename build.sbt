@@ -66,8 +66,8 @@ git.gitTagToVersionNumber := {
   case VersionRegex(v, "")         => Some(v)
   case VersionRegex(v, "SNAPSHOT") => Some(s"$v-SNAPSHOT")
   case VersionRegex(v, s)          => Some(s"$v-CH-SNAPSHOT")
-  case _                           => Some("None")
+  case _                           => None
 }
 git.formattedShaVersion := git.gitHeadCommit.value map { sha =>
-  "0.0.1-CH-SNAPSHOT"
+  "0.0.1-SNAPSHOT"
 }

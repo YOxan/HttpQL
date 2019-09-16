@@ -17,8 +17,8 @@ import tapir.swagger.http4s.SwaggerHttp4s
 
 import scala.concurrent.ExecutionContext
 
-class Api[F[_]: Sync: ContextShift](
-    val graphQLRoute: GraphQLRoute[F],
+class Api[F[_]: Sync: ContextShift, T <: GraphQLContext[F, String]](
+    val graphQLRoute: GraphQLRoute[F, T],
     val graphQLBrowserRoute: GraphQLBrowserRoute[F],
     val getSDLRoute: GetSDLRoute[F],
     val additionalRoutes: List[ServerEndpoint[_, _, _, Nothing, F]] = List.empty
@@ -50,22 +50,23 @@ class Api[F[_]: Sync: ContextShift](
 }
 
 object Api {
-  def apply[F[_]: Effect: ContextShift](
-      schemaDefinition: SchemaDefinition[GraphQLContext[F, String]],
-      resolver: DeferredResolver[GraphQLContext[F, String]],
+  def apply[F[_]: Effect: ContextShift, T <: GraphQLContext[F, String]](
+      schemaDefinition: SchemaDefinition[T],
+      resolver: DeferredResolver[T],
       userProvider: UserProvider[F, String],
       authenticationConfig: AuthenticationConfig,
+      contextBuilder: GraphQLContext.Builder[T, F, String],
       additionalRoutes: List[ServerEndpoint[_, _, _, Nothing, F]] = List.empty
   )(
       implicit ec: ExecutionContext
   ) = {
-    val graphQLResolver = new GraphQLResolver[F, GraphQLContext[F, String]](resolver, schemaDefinition)
+    val graphQLResolver = new GraphQLResolver[F, T](resolver, schemaDefinition)
     val authorization   = new Authorization[F](authenticationConfig)
 
-    val graphQLRoute        = new GraphQLRoute[F](graphQLResolver, authorization, userProvider)
+    val graphQLRoute        = new GraphQLRoute[F, T](graphQLResolver, contextBuilder, authorization, userProvider)
     val graphQLBrowserRoute = new GraphQLBrowserRoute[F](graphQLResolver)
     val getSDLRoute         = new GetSDLRoute[F](authorization, schemaDefinition)
 
-    new Api[F](graphQLRoute, graphQLBrowserRoute, getSDLRoute, additionalRoutes)
+    new Api[F, T](graphQLRoute, graphQLBrowserRoute, getSDLRoute, additionalRoutes)
   }
 }
