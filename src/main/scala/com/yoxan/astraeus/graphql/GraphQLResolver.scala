@@ -24,6 +24,7 @@ class GraphQLResolver[F[_]: Effect: Monad, Ctx](
   private val customExceptionHandler = ExceptionHandler(
     onException = {
       case (m, error: ServerError) => {
+        //TODO: should be logged instead
         error.printStackTrace()
         HandledException(
           error.msg,
@@ -33,7 +34,11 @@ class GraphQLResolver[F[_]: Effect: Monad, Ctx](
         )
       }
 
-      case (_, ex: Throwable) => HandledException(ex.getMessage)
+      case (_, ex: Throwable) => {
+        //TODO: should be logged instead
+        ex.printStackTrace()
+        HandledException(ex.getMessage)
+      }
     },
     onViolation = {
       case (_, v) => HandledException(v.errorMessage)
