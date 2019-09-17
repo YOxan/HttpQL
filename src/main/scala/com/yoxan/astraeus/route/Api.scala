@@ -7,6 +7,7 @@ import com.yoxan.astraeus.graphql.{ GraphQLContext, GraphQLResolver, SchemaDefin
 import com.yoxan.astraeus.user.{ Authorization, UserProvider }
 import org.http4s.implicits._
 import org.http4s.server.Router
+import org.http4s.server.middleware.CORS
 import org.http4s.{ HttpRoutes, Request, Response }
 import sangria.execution.deferred.DeferredResolver
 import tapir.docs.openapi._
@@ -45,7 +46,7 @@ class Api[F[_]: Sync: ContextShift, T <: GraphQLContext[F, String]](
         .orElse(swaggerRoutes.apply(req))
     }
 
-    routes.orNotFound
+    CORS(routes.orNotFound)
   }
 }
 
