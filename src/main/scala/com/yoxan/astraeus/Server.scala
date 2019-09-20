@@ -22,6 +22,7 @@ class Server[F[_]: ConcurrentEffect: Timer: ContextShift, T <: GraphQLContext[F,
         BlazeServerBuilder[F]
           .bindHttp(cfg.port, cfg.host)
           .withHttpApp(apiV1.route)
+          .withSSL()
           .resource
           .use(_ => ConcurrentEffect[F].never[Unit])
     )
