@@ -6,6 +6,7 @@ import com.yoxan.astraeus.config.{ AuthenticationConfig, ConfigLoader, ServerCon
 import com.yoxan.astraeus.graphql.{ GraphQLContext, SchemaDefinition }
 import com.yoxan.astraeus.route.Api
 import com.yoxan.astraeus.user.UserProvider
+import javax.net.ssl.SSLContext
 import org.http4s.server.blaze.BlazeServerBuilder
 import sangria.execution.deferred.DeferredResolver
 import tapir.server.ServerEndpoint
@@ -16,15 +17,18 @@ class Server[F[_]: ConcurrentEffect: Timer: ContextShift, T <: GraphQLContext[F,
     val serverConfigF: F[ServerConfig],
     val authConfigF: F[AuthenticationConfig]
 ) {
-  def start(apiV1: Api[F, T]): F[Unit] =
+  def start(apiV1: Api[F, T], sslContext: Option[SSLContext]): F[Unit] =
     serverConfigF.flatMap(
-      cfg =>
-        BlazeServerBuilder[F]
+      cfg => {
+        val builder = BlazeServerBuilder[F]
           .bindHttp(cfg.port, cfg.host)
           .withHttpApp(apiV1.route)
-          .withSSL()
+
+        sslContext
+          .fold(builder)(builder.withSSLContext(_))
           .resource
           .use(_ => ConcurrentEffect[F].never[Unit])
+      }
     )
 
   def start(
@@ -32,7 +36,8 @@ class Server[F[_]: ConcurrentEffect: Timer: ContextShift, T <: GraphQLContext[F,
       resolver: DeferredResolver[GraphQLContext[F, String]],
       userProvider: UserProvider[F, String],
       contextBuilder: GraphQLContext.Builder[T, F, String],
-      additionalRoutes: List[ServerEndpoint[_, _, _, Nothing, F]] = List.empty
+      additionalRoutes: List[ServerEndpoint[_, _, _, Nothing, F]] = List.empty,
+      sslContext: Option[SSLContext] = None
   )(
       implicit ec: ExecutionContext
   ): F[Unit] =
@@ -40,7 +45,7 @@ class Server[F[_]: ConcurrentEffect: Timer: ContextShift, T <: GraphQLContext[F,
       .map(
         Api.apply[F, T](schemaDefinition, resolver, userProvider, _, contextBuilder, additionalRoutes)
       )
-      .flatMap(start)
+      .flatMap(start(_, sslContext))
 }
 
 object Server {
