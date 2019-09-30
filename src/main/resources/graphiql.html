@@ -49,12 +49,14 @@
                 }
             });
             // if variables was provided, try to format it.
-            if (parameters.variables) {
-                try {
-                    parameters.variables =
-                        JSON.stringify(JSON.parse(query.variables), null, 2);
-                } catch (e) {
-                    // Do nothing
+            function getVariables() {
+                if (parameters.variables) {
+                    try {
+                        parameters.variables =
+                            JSON.parse(query.variables);
+                    } catch (e) {
+                        console.warn("Can't format json somehow: ", e);
+                    }
                 }
             }
             // When the query and variables string is edited, update the URL bar so
@@ -109,7 +111,7 @@
                     React.createElement(GraphiQL, {
                         fetcher: graphQLFetcher,
                         query: parameters.query,
-                        variables: parameters.variables,
+                        variables: getVariables(),
                         response: parameters.response,
                         onEditQuery: onEditQuery,
                         onEditVariables: onEditVariables,
