@@ -40,12 +40,12 @@ class Server[F[_]: ConcurrentEffect: Timer: ContextShift, T <: GraphQLContext[F,
       sslContext: Option[SSLContext] = None
   )(
       implicit ec: ExecutionContext
-  ): F[Unit] =
-    authConfigF
-      .map(
-        Api.apply[F, T](schemaDefinition, resolver, userProvider, _, contextBuilder, additionalRoutes)
-      )
-      .flatMap(start(_, sslContext))
+  ): F[Unit] = {
+    val api = Api
+      .apply[F, T](schemaDefinition, resolver, userProvider, authConfigF, contextBuilder, additionalRoutes)
+
+    start(api, sslContext)
+  }
 }
 
 object Server {

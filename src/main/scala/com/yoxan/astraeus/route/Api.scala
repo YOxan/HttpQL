@@ -55,7 +55,7 @@ object Api {
       schemaDefinition: SchemaDefinition[T],
       resolver: DeferredResolver[T],
       userProvider: UserProvider[F, String],
-      authenticationConfig: AuthenticationConfig,
+      authenticationConfig: F[AuthenticationConfig],
       contextBuilder: GraphQLContext.Builder[T, F, String],
       additionalRoutes: List[ServerEndpoint[_, _, _, Nothing, F]] = List.empty
   )(
