@@ -7,6 +7,7 @@ case class AuthenticationConfig(
     issuer: String,
     audience: String
 )
+
 object AuthenticationConfig {
   implicit val configReader = deriveReader[AuthenticationConfig]
 }

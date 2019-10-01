@@ -7,7 +7,6 @@ import com.yoxan.astraeus.error.ServerError
 import com.yoxan.astraeus.route.Query
 import com.yoxan.astraeus.util._
 import io.circe.Json
-import io.circe.parser._
 import sangria.execution.deferred.DeferredResolver
 import sangria.execution.{ ExceptionHandler, Executor, HandledException }
 import sangria.marshalling.circe
@@ -70,14 +69,10 @@ class GraphQLResolver[F[_]: Effect: Monad, Ctx](
     executeFuture(graphQLContext, queryAst, variables)
       .toAsync[F]
 
-  def execute(context: Ctx, query: Query): EitherT[F, Throwable, circe.CirceResultMarshaller.Node] = {
-    val variables = EitherT.fromEither[F](parse(query.variables)).leftMap(_.fillInStackTrace())
-
+  def execute(context: Ctx, query: Query): EitherT[F, Throwable, circe.CirceResultMarshaller.Node] =
     EitherT
       .fromEither[F](QueryParser.parse(query.query).toEither)
-      .flatMap(d => variables.map((d, _)))
-      .flatMapF {
-        case (d, v) => Sync[F].attempt(execute(context, d, v))
+      .flatMapF { d =>
+        Sync[F].attempt(execute(context, d, query.variables))
       }
-  }
 }
