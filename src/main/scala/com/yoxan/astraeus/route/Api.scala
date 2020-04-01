@@ -2,9 +2,7 @@ package com.yoxan.astraeus.route
 
 import cats.data.{ Kleisli, OptionT }
 import cats.effect.{ ContextShift, Effect, Sync }
-import com.yoxan.astraeus.config.AuthenticationConfig
 import com.yoxan.astraeus.graphql.{ GraphQLContext, GraphQLResolver, SchemaDefinition }
-import com.yoxan.astraeus.user.{ Authorization, UserProvider }
 import org.http4s.implicits._
 import org.http4s.server.Router
 import org.http4s.server.middleware.CORS
@@ -19,7 +17,7 @@ import org.http4s.EntityBody
 
 import scala.concurrent.ExecutionContext
 
-class Api[F[_]: Sync: ContextShift, T <: GraphQLContext[F, String]](
+class Api[F[_]: Sync: ContextShift, T <: GraphQLContext[F]](
     val graphQLRoute: GraphQLRoute[F, T],
     val graphQLBrowserRoute: GraphQLBrowserRoute[F],
     val getSDLRoute: GetSDLRoute[F],
@@ -52,22 +50,19 @@ class Api[F[_]: Sync: ContextShift, T <: GraphQLContext[F, String]](
 }
 
 object Api {
-  def apply[F[_]: Effect: ContextShift, T <: GraphQLContext[F, String]](
+  def apply[F[_]: Effect: ContextShift, T <: GraphQLContext[F]](
       schemaDefinition: SchemaDefinition[T],
-      resolver: DeferredResolver[T],
-      userProvider: UserProvider[F, String],
-      authenticationConfig: F[AuthenticationConfig],
-      contextBuilder: GraphQLContext.Builder[T, F, String],
+      contextBuilder: GraphQLContext.Builder[T, F],
+      resolver: Option[DeferredResolver[T]] = None,
       additionalRoutes: List[ServerEndpoint[_, _, _, EntityBody[F], F]] = List.empty
   )(
       implicit ec: ExecutionContext
   ) = {
     val graphQLResolver = new GraphQLResolver[F, T](resolver, schemaDefinition)
-    val authorization   = new Authorization[F](authenticationConfig)
 
-    val graphQLRoute        = new GraphQLRoute[F, T](graphQLResolver, contextBuilder, authorization, userProvider)
+    val graphQLRoute        = new GraphQLRoute[F, T](graphQLResolver, contextBuilder)
     val graphQLBrowserRoute = new GraphQLBrowserRoute[F](graphQLResolver)
-    val getSDLRoute         = new GetSDLRoute[F](authorization, schemaDefinition)
+    val getSDLRoute         = new GetSDLRoute[F](schemaDefinition)
 
     new Api[F, T](graphQLRoute, graphQLBrowserRoute, getSDLRoute, additionalRoutes)
   }
