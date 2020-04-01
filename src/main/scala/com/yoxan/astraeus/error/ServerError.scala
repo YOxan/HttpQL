@@ -1,5 +1,7 @@
 package com.yoxan.astraeus.error
 
+import io.circe.generic.auto._
+
 case class AdditionalField(errorCode: Int)
 case class MessagedError(message: String, extensions: Option[AdditionalField])
 case class ErrorDTO(errors: Seq[MessagedError])

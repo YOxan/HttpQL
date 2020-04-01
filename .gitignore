@@ -118,3 +118,7 @@ Icon
 Network Trash Folder
 Temporary Items
 .apdisk
+
+/.metals
+metals.sbt
+/.bloop

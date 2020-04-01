@@ -34,7 +34,7 @@ class GraphQLRoute[F[_]: Async: Monad, T <: GraphQLContext[F, String]](
       .serverLogic[F] {
         case (jwt, query) =>
           EitherT[F, Throwable, String](authorization.getId(jwt))
-            .map(userId => contextBuilder(userId.some, userProvider))
+            .semiflatMap(userId => contextBuilder(userId.some, userProvider))
             .flatMap(graphQLResolver.execute(_, query))
             .leftMap(ex => ServerError.toError(ex).toDTO())
             .value

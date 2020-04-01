@@ -15,6 +15,7 @@ import tapir.openapi.circe.yaml._
 import tapir.server.ServerEndpoint
 import tapir.server.http4s._
 import tapir.swagger.http4s.SwaggerHttp4s
+import org.http4s.EntityBody
 
 import scala.concurrent.ExecutionContext
 
@@ -22,10 +23,10 @@ class Api[F[_]: Sync: ContextShift, T <: GraphQLContext[F, String]](
     val graphQLRoute: GraphQLRoute[F, T],
     val graphQLBrowserRoute: GraphQLBrowserRoute[F],
     val getSDLRoute: GetSDLRoute[F],
-    val additionalRoutes: List[ServerEndpoint[_, _, _, Nothing, F]] = List.empty
+    val additionalRoutes: List[ServerEndpoint[_, _, _, EntityBody[F], F]] = List.empty
 ) {
 
-  val endpointsList: List[ServerEndpoint[_, _, _, Nothing, F]] =
+  val endpointsList: List[ServerEndpoint[_, _, _, EntityBody[F], F]] =
     List(
       graphQLRoute.route,
       graphQLBrowserRoute.route,
@@ -57,7 +58,7 @@ object Api {
       userProvider: UserProvider[F, String],
       authenticationConfig: F[AuthenticationConfig],
       contextBuilder: GraphQLContext.Builder[T, F, String],
-      additionalRoutes: List[ServerEndpoint[_, _, _, Nothing, F]] = List.empty
+      additionalRoutes: List[ServerEndpoint[_, _, _, EntityBody[F], F]] = List.empty
   )(
       implicit ec: ExecutionContext
   ) = {

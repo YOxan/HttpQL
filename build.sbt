@@ -1,6 +1,6 @@
 name := "graphql-backend"
 
-scalaVersion := "2.12.8"
+scalaVersion := "2.12.10"
 
 val http4sVersion         = "0.20.6"
 val logbackVersion        = "1.2.3"
