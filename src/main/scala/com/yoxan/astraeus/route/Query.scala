@@ -1,7 +1,10 @@
 package com.yoxan.astraeus.route
 
+import io.circe.Json
+import io.circe.generic.auto._
+
 //TODO: Check variables and operationName
-case class Query(query: String, variables: String, operationName: Option[String])
+case class Query(query: String, variables: Json, operationName: Option[String])
 
 object Query {
   /*implicit val varDecoder: Decoder[Map[String, String]] =

@@ -6,6 +6,7 @@ import cats.effect._
 import com.yoxan.astraeus.error.ServerError
 import com.yoxan.astraeus.route.Query
 import com.yoxan.astraeus.util._
+import io.circe.Json
 import sangria.execution.deferred.DeferredResolver
 import sangria.execution.{ ExceptionHandler, Executor, HandledException }
 import sangria.marshalling.circe
@@ -24,6 +25,7 @@ class GraphQLResolver[F[_]: Effect: Monad, Ctx](
   private val customExceptionHandler = ExceptionHandler(
     onException = {
       case (m, error: ServerError) => {
+        //TODO: should be logged instead
         error.printStackTrace()
         HandledException(
           error.msg,
@@ -33,7 +35,11 @@ class GraphQLResolver[F[_]: Effect: Monad, Ctx](
         )
       }
 
-      case (_, ex: Throwable) => HandledException(ex.getMessage)
+      case (_, ex: Throwable) => {
+        //TODO: should be logged instead
+        ex.printStackTrace()
+        HandledException(ex.getMessage)
+      }
     },
     onViolation = {
       case (_, v) => HandledException(v.errorMessage)
@@ -43,7 +49,7 @@ class GraphQLResolver[F[_]: Effect: Monad, Ctx](
   private[graphql] def executeFuture(
       graphQLContext: Ctx,
       queryAst: sangria.ast.Document,
-      variables: String
+      variables: Json
   ): Future[circe.CirceResultMarshaller.Node] =
     Executor
       .execute(
@@ -51,14 +57,14 @@ class GraphQLResolver[F[_]: Effect: Monad, Ctx](
         queryAst,
         graphQLContext,
         deferredResolver = resolver,
-        exceptionHandler = customExceptionHandler
-        //variables = variables
+        exceptionHandler = customExceptionHandler,
+        variables = variables
       )
 
   private[graphql] def execute(
       graphQLContext: Ctx,
       queryAst: sangria.ast.Document,
-      variables: String
+      variables: Json
   ): F[circe.CirceResultMarshaller.Node] =
     executeFuture(graphQLContext, queryAst, variables)
       .toAsync[F]
@@ -66,5 +72,7 @@ class GraphQLResolver[F[_]: Effect: Monad, Ctx](
   def execute(context: Ctx, query: Query): EitherT[F, Throwable, circe.CirceResultMarshaller.Node] =
     EitherT
       .fromEither[F](QueryParser.parse(query.query).toEither)
-      .flatMapF(d => Sync[F].attempt(execute(context, d, query.variables)))
+      .flatMapF { d =>
+        Sync[F].attempt(execute(context, d, query.variables))
+      }
 }
