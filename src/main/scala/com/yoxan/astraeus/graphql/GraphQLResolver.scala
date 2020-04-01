@@ -16,7 +16,7 @@ import sangria.parser.QueryParser
 import scala.concurrent.{ ExecutionContext, Future }
 
 class GraphQLResolver[F[_]: Effect: Monad, Ctx](
-    resolver: DeferredResolver[Ctx],
+    resolver: Option[DeferredResolver[Ctx]],
     schemaDefinition: SchemaDefinition[Ctx]
 )(
     implicit val ec: ExecutionContext
@@ -56,7 +56,7 @@ class GraphQLResolver[F[_]: Effect: Monad, Ctx](
         schemaDefinition.schema,
         queryAst,
         graphQLContext,
-        deferredResolver = resolver,
+        deferredResolver = resolver.getOrElse(DeferredResolver.empty),
         exceptionHandler = customExceptionHandler,
         variables = variables
       )

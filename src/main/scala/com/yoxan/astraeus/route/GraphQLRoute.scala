@@ -25,17 +25,15 @@ class GraphQLRoute[F[_]: Async: Monad, T <: GraphQLContext[F]](
       .description("Graphql route")
       .post
       .in("graphql")
-      .in(auth.bearer)
       .in(jsonBody[Query])
       //TODO: Check why error doesn't work and is shown only at console
       .errorOut(errorBody)
       .out(jsonBody[circe.CirceResultMarshaller.Node])
-      .serverLogic[F] {
-        case (jwt, query) =>
-          EitherT
-            .liftF(contextBuilder())
-            .flatMap(ctx => graphQLResolver.execute(ctx, query))
-            .leftMap(ex => ServerError.toError(ex).toDTO())
-            .value
+      .serverLogic[F] { query =>
+        EitherT
+          .liftF(contextBuilder())
+          .flatMap(ctx => graphQLResolver.execute(ctx, query))
+          .leftMap(ex => ServerError.toError(ex).toDTO())
+          .value
       }
 }

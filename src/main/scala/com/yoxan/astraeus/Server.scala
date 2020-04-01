@@ -40,7 +40,7 @@ class Server[F[_]: ConcurrentEffect: Timer: ContextShift, T <: GraphQLContext[F]
       implicit ec: ExecutionContext
   ): F[Unit] = {
     val api = Api
-      .apply[F, T](schemaDefinition, resolver, contextBuilder, additionalRoutes)
+      .apply[F, T](schemaDefinition, contextBuilder, resolver.some, additionalRoutes)
 
     start(api, sslContext)
   }

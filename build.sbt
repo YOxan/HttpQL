@@ -55,7 +55,9 @@ libraryDependencies ++= Seq(
   "org.sangria-graphql"    %% "sangria-circe"            % sangriaCirceVersion,
   "com.typesafe"           % "config"                    % typesafeConfigVersion,
   "com.github.pureconfig"  %% "pureconfig"               % peruconfigVersion,
-  "com.pauldijou"          %% "jwt-circe"                % jwtCirceVersion excludeAll "io.circe"
+  "com.pauldijou"          %% "jwt-circe"                % jwtCirceVersion excludeAll "io.circe",
+  "org.scalactic"          %% "scalactic"                % "3.1.1",
+  "org.scalatest"          %% "scalatest"                % "3.1.1" % "test"
 )
 
 val VersionRegex = "v([0-9]+.[0-9]+.[0-9]+)-?(.*)?".r

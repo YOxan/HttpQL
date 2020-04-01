@@ -52,8 +52,8 @@ class Api[F[_]: Sync: ContextShift, T <: GraphQLContext[F]](
 object Api {
   def apply[F[_]: Effect: ContextShift, T <: GraphQLContext[F]](
       schemaDefinition: SchemaDefinition[T],
-      resolver: DeferredResolver[T],
       contextBuilder: GraphQLContext.Builder[T, F],
+      resolver: Option[DeferredResolver[T]] = None,
       additionalRoutes: List[ServerEndpoint[_, _, _, EntityBody[F], F]] = List.empty
   )(
       implicit ec: ExecutionContext
